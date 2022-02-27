@@ -6,20 +6,20 @@ namespace arcdps_updater
 {
     public class SettingsProvider
     {
-        private const string InstalltionPathKey = "installationPath";
+        private const string FileNameKey = "fileName";
         private const string ResourcesAddressKey = "resourcesAddress";
 
-        public string InstallationPath { get; }
+        public string FileName { get; }
         public string ResourcesAddress { get; }
         public string TempPath { get; } = Path.Combine(Path.GetTempPath(), "natured", "arcdps_updater");
 
         public SettingsProvider()
         {
-            InstallationPath = ConfigurationManager.AppSettings[InstalltionPathKey];
+            FileName = ConfigurationManager.AppSettings[FileNameKey];
             ResourcesAddress = ConfigurationManager.AppSettings[ResourcesAddressKey];
 
             Console.WriteLine("settings:");
-            Console.WriteLine($"{InstalltionPathKey}: {InstallationPath}");
+            Console.WriteLine($"{FileNameKey}: {FileName}");
             Console.WriteLine($"{ResourcesAddressKey}: {ResourcesAddress}");
             Console.WriteLine();
 
