@@ -24,7 +24,7 @@ namespace arcdps_updater
 
             Console.WriteLine("settings:");
             Console.WriteLine($"{FileNameKey}: {FileName}");
-            Console.WriteLine($"{InstallationPath}: {InstallationPath}");
+            Console.WriteLine($"{InstallationPathKey}: {InstallationPath}");
             Console.WriteLine($"{ResourcesAddressKey}: {ResourcesAddress}");
             Console.WriteLine();
 
