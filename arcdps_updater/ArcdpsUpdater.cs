@@ -10,8 +10,7 @@ namespace arcdps_updater
     {
         private readonly SettingsProvider _settingsProvider;
         private readonly EnvironmentProvider _environmentProvider;
-        private const string RemoteArcdpsFileName = "d3d9.dll";
-        private const string RemoteArcdpsChecksumFileName = "d3d9.dll.md5sum";
+        private const string ChecksumFileExt = ".md5sum";
 
         public ArcdpsUpdater(SettingsProvider settingsProvider, EnvironmentProvider environmentProvider)
         {
@@ -21,13 +20,11 @@ namespace arcdps_updater
 
         public void Execute()
         {
-            var localDirectory = Path.GetDirectoryName(_settingsProvider.FileName);
-
-            if (_environmentProvider.IsElevationRequired(localDirectory) && !_environmentProvider.IsElevated())
+            if (_environmentProvider.IsElevationRequired(_settingsProvider.InstallationPath) && !_environmentProvider.IsElevated())
                 throw new ElevationRequiredException();
 
             var httpConnector = GetHttpConnector();
-            var localFileName = _settingsProvider.FileName;
+            var localFileName = _settingsProvider.GetFqFileName();
 
             if (IsNewestVersion(httpConnector, localFileName, out var version)) return;
 
@@ -37,7 +34,7 @@ namespace arcdps_updater
             try
             {
                 Console.WriteLine($"Downloading 'arcdps' files");
-                tempFileName = httpConnector.DownloadFile(_settingsProvider.TempPath, RemoteArcdpsFileName);
+                tempFileName = httpConnector.DownloadFile(_settingsProvider.TempPath, _settingsProvider.FileName);
                 File.Move(tempFileName, localFileName);
                 
                 Console.WriteLine($"Updated 'arcdps' to {version}");
@@ -50,13 +47,13 @@ namespace arcdps_updater
 
         public void Clear()
         {
-            File.Delete(_settingsProvider.FileName);
+            File.Delete(_settingsProvider.GetFqFileName());
             Console.WriteLine($"Removed 'arcdps' files");
         }
 
         public void CheckVersion()
         {
-            IsNewestVersion(GetHttpConnector(), _settingsProvider.FileName, out _);
+            IsNewestVersion(GetHttpConnector(), _settingsProvider.GetFqFileName(), out _);
         }
 
         private bool IsNewestVersion(HttpConnector httpConnector, string fileName, out string version)
@@ -65,7 +62,7 @@ namespace arcdps_updater
 
             try
             {
-                checksumFileName = httpConnector.DownloadFile(_settingsProvider.TempPath, RemoteArcdpsChecksumFileName, out var fileDateTime);
+                checksumFileName = httpConnector.DownloadFile(_settingsProvider.TempPath, _settingsProvider.FileName + ChecksumFileExt, out var fileDateTime);
                 version = GetVersion(fileDateTime);
 
                 var text = File.ReadAllText(checksumFileName);
